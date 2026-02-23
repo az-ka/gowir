@@ -9,11 +9,12 @@ import (
 )
 
 func main() {
+	Config()
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	})
 
-	log.Fatal(http.ListenAndServe(":4000", middleware.MiddlewareLogging(mux)))
+	log.Fatal(http.ListenAndServe(port, middleware.MiddlewareLogging(mux)))
 }
