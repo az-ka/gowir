@@ -18,7 +18,7 @@ services:
       retries: 5
 
   nocodb:
-    image: nocodb/nocodb:latest
+    image: nocodb/nocodb:0.301.2
     depends_on:
       db:
         condition: service_healthy
