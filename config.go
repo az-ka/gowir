@@ -13,11 +13,13 @@ var (
 )
 
 func Config() {
-	_ = godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		log.Debug("failed to load .env", "err", err)
+	}
 
 	dbURL = os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		log.Fatal("DATABASE_URL tidak ditemukan di .env")
+		log.Fatal("DATABASE_URL not found")
 	}
 
 	var ok bool
