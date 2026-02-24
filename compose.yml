@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-gowir_db}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -24,6 +24,7 @@ services:
         condition: service_healthy
     environment:
       NC_DB: "pg://db:5432?u=${POSTGRES_USER:-postgres}&p=${POSTGRES_PASSWORD:-postgres}&d=${POSTGRES_DB:-gowir_db}"
+      NC_AUTH_JWT_SECRET: "${NC_AUTH_JWT_SECRET}"
     ports:
       - "${NOCODB_PORT:-8080}:8080"
     volumes:
