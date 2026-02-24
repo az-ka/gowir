@@ -25,37 +25,27 @@ docker compose up -d
 - **NocoDB UI:** `http://localhost:8080`
 - **Postgres Port:** `5432`
 
-## 🗄️ Database Commands (Penting!)
+## 🗄️ Database Commands (Taskfile)
 
-Berikut adalah perintah-perintah penting yang sering digunakan saat mengembangkan aplikasi ini:
+Proyek ini menggunakan **Taskfile** (alternatif modern dari Makefile) untuk menyederhanakan perintah-perintah panjang. 
 
-### 1. Migrasi Database (golang-migrate)
+> ⚠️ **Pastikan kamu sudah menginstal Taskfile:** 
+> Silakan lihat panduan instalasinya di [https://taskfile.dev/docs/installation](https://taskfile.dev/docs/installation).
 
-**Membuat file migrasi baru (Up & Down):**
-```bash
-go run github.com/golang-migrate/migrate/v4/cmd/migrate@latest create -ext sql -dir db/migrations -seq nama_tabel
-```
-*(Contoh: ganti `nama_tabel` dengan `create_users_table`)*
+Berikut adalah perintah-perintah yang tersedia:
 
-**Menjalankan Migrasi (Menerapkan perubahan ke database):**
-```bash
-go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest -path db/migrations -database "postgres://postgres:postgres@localhost:5432/gowir_db?sslmode=disable" up
-```
+| Perintah | Deskripsi |
+| :--- | :--- |
+| `task db:up` | Menjalankan PostgreSQL dan NocoDB di background |
+| `task db:down` | Mematikan PostgreSQL dan NocoDB |
+| `task migrate:create -- nama_tabel` | Membuat file migrasi baru (up & down) |
+| `task migrate:up` | Menjalankan migrasi database ke versi terbaru |
+| `task migrate:down` | Mengembalikan (rollback) migrasi database 1 langkah |
+| `task sqlc:generate` | Meng-generate ulang kode Go dari file SQL menggunakan SQLC |
 
-**Rollback Migrasi (Mengembalikan perubahan 1 step):**
-```bash
-go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest -path db/migrations -database "postgres://postgres:postgres@localhost:5432/gowir_db?sslmode=disable" down 1
-```
+*(Kamu bisa melihat daftar lengkap ini kapan saja dengan mengetik `task` atau `task -l` di terminal).*
 
-### 2. Generate Query Go (sqlc)
-
-Setiap kali kamu mengubah atau menambahkan query di dalam folder `db/query/` atau merubah skema di `db/migrations/`, kamu **WAJIB** menjalankan perintah ini untuk memperbarui kode Go di folder `internal/db/`.
-
-```bash
-go run github.com/sqlc-dev/sqlc/cmd/sqlc@latest generate
-```
-
-### 3. Mengunduh Dependencies
+### Mengunduh Dependencies
 
 Jika ada *package* atau module yang error/merah:
 ```bash
