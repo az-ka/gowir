@@ -1,7 +1,4 @@
-reviews:
-  path_filters:
-    - "!internal/db/**"
-
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 reviews:
   path_filters:
     - "!internal/db/**"
