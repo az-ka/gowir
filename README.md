@@ -99,4 +99,4 @@ Sesuai filosofi Go: *"A little copying is better than a little dependency."*
 Untuk fitur kompleks yang melibatkan banyak entitas (seperti `checkout`), buatlah folder fitur khusus (misal `internal/features/checkout/`). Fitur ini bertindak sebagai **Orkestrator**.
 
 - Fitur murni (seperti `cart`, `product`) dilarang saling memodifikasi untuk mencegah *circular dependency*.
-- Fitur `checkout` bertugas memanggil `cart`, memanggil `product` (cek stok), dan membungkus semuanya dalam satu **Database Transaction (DB TX)**.
+- Sementara itu, `checkout` bertugas memanggil `cart`, memanggil `product` (cek stok), dan membungkus semuanya dalam satu **Database Transaction (DB TX)**.

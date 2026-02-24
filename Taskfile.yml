@@ -2,6 +2,9 @@ version: '3'
 
 dotenv: ['.env']
 
+vars:
+  MIGRATE_VERSION: v4.19.1
+
 tasks:
   default:
     cmds:
@@ -21,17 +24,17 @@ tasks:
   migrate:create:
     desc: "Membuat file migrasi baru. Penggunaan: task migrate:create -- <nama_tabel>"
     cmds:
-      - go run github.com/golang-migrate/migrate/v4/cmd/migrate@latest create -ext sql -dir db/migrations -seq {{.CLI_ARGS}}
+      - go run github.com/golang-migrate/migrate/v4/cmd/migrate@{{.MIGRATE_VERSION}} create -ext sql -dir db/migrations -seq {{.CLI_ARGS}}
 
   migrate:up:
     desc: "Menjalankan migrasi database ke versi terbaru"
     cmds:
-      - go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest -path db/migrations -database "{{.DATABASE_URL}}" up
+      - go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@{{.MIGRATE_VERSION}} -path db/migrations -database "{{.DATABASE_URL}}" up
 
   migrate:down:
     desc: "Mengembalikan (rollback) migrasi database 1 langkah"
     cmds:
-      - go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest -path db/migrations -database "{{.DATABASE_URL}}" down 1
+      - go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@{{.MIGRATE_VERSION}} -path db/migrations -database "{{.DATABASE_URL}}" down 1
 
   sqlc:generate:
     desc: "Meng-generate ulang kode Go dari file SQL menggunakan SQLC"
