@@ -14,12 +14,22 @@ tasks:
   db:up:
     desc: "Menjalankan PostgreSQL dan NocoDB di background"
     cmds:
-      - podman-compose up -d || docker compose up -d
+      - |
+        if command -v podman-compose >/dev/null 2>&1; then
+          podman-compose up -d
+        else
+          docker compose up -d
+        fi
 
   db:down:
     desc: "Mematikan PostgreSQL dan NocoDB"
     cmds:
-      - podman-compose down || docker compose down
+      - |
+        if command -v podman-compose >/dev/null 2>&1; then
+          podman-compose down
+        else
+          docker compose down
+        fi
 
   migrate:create:
     desc: "Membuat file migrasi baru. Penggunaan: task migrate:create -- <nama_tabel>"
