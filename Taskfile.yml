@@ -36,7 +36,7 @@ tasks:
   sqlc:generate:
     desc: "Meng-generate ulang kode Go dari file SQL menggunakan SQLC"
     cmds:
-      - go run github.com/sqlc-dev/sqlc/cmd/sqlc@latest generate
+      - go run github.com/sqlc-dev/sqlc/cmd/sqlc@v1.30.0 generate
 
   dev:
     desc: "Menjalankan aplikasi Go (Contoh)"

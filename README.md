@@ -22,7 +22,7 @@ podman-compose up -d
 docker compose up -d
 ```
 
-- **NocoDB UI:** `http://localhost:8080`
+- **NocoDB UI:** `http://localhost:${NOCODB_PORT}` *(default: `8080`, lihat `.env`)*
 - **Postgres Port:** `5432`
 
 ## 🗄️ Database Commands (Taskfile)
