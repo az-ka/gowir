@@ -2,6 +2,9 @@ reviews:
   path_filters:
     - "!internal/db/**"
 
-pre_merge_checks:
-  docstrings:
-    mode: "off"
+reviews:
+  path_filters:
+    - "!internal/db/**"
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
