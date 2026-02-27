@@ -29,7 +29,11 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, _ := uuid.NewV7()
+	id, err := uuid.NewV7()
+	if err != nil {
+		response.Error(w, 500, "Gagal membuat kateogori")
+		return
+	}
 	categorySlug := generateCustomSlug(req.Name)
 
 	category, err := h.queries.CreateCategory(r.Context(), db.CreateCategoryParams{
