@@ -25,7 +25,10 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	pool := ConnectDB(ctx, dbURL)
+	pool, err := ConnectDB(ctx, dbURL)
+	if err != nil {
+		log.Fatal("failed to connect to database", "error", err)
+	}
 	defer pool.Close()
 
 	// Init SQLC queries to be passed to handlers
@@ -44,7 +47,7 @@ func main() {
 	})
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "API e-commerce berjalan dengan baik") // User facing message
+		fmt.Fprintln(w, "API e-commerce berjalan dengan baik")
 	})
 
 	srv := &http.Server{
@@ -55,25 +58,32 @@ func main() {
 		IdleTimeout:  120 * time.Second,
 	}
 
+	errChan := make(chan error, 1)
 	go func() {
 		log.Info("server is running", "port", port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatal("gagal menjalankan server", "error", err)
+			errChan <- err
 		}
 	}()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
-	<-quit
 
-	log.Info("mematikan server secara perlahan...")
+	select {
+	case err := <-errChan:
+		log.Error("server encountered a fatal error", "error", err)
+	case sig := <-quit:
+		log.Info("received termination signal", "signal", sig)
+	}
+
+	log.Info("shutting down server gracefully...")
 
 	ctxShutdown, cancelShut := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelShut()
 
 	if err := srv.Shutdown(ctxShutdown); err != nil {
-		log.Fatal("server terpaksa dimatikan", "error", err)
+		log.Error("server forced to shutdown", "error", err)
 	}
 
-	log.Info("server berhasil berhenti dengan aman")
+	log.Info("server stopped safely")
 }

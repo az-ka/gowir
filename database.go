@@ -8,16 +8,17 @@ import (
 )
 
 // ConnectDB creates a connection pool to PostgreSQL using pgx
-func ConnectDB(ctx context.Context, dbURL string) *pgxpool.Pool {
+func ConnectDB(ctx context.Context, dbURL string) (*pgxpool.Pool, error) {
 	pool, err := pgxpool.New(ctx, dbURL)
 	if err != nil {
-		log.Fatalf("failed to create database connection pool: %v", err)
+		return nil, err
 	}
 
 	if err := pool.Ping(ctx); err != nil {
-		log.Fatalf("database did not respond to ping: %v", err)
+		pool.Close()
+		return nil, err
 	}
 
 	log.Info("successfully connected to PostgreSQL")
-	return pool
+	return pool, nil
 }
