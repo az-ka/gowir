@@ -7,10 +7,10 @@ import (
 
 // BaseResponse adalah format standar semua API response
 type BaseResponse struct {
-	Status  string      `json:"status"`            // "success" atau "error"
-	Message string      `json:"message"`           // Pesan untuk user
-	Data    any `json:"data,omitempty"`    // Untuk response sukses
-	Errors  any `json:"errors,omitempty"`  // Untuk detail error (misal validasi)
+	Status  string `json:"status"`            // "success" atau "error"
+	Message string `json:"message"`           // Pesan untuk user
+	Data    any    `json:"data,omitempty"`    // Untuk response sukses
+	Errors  any    `json:"errors,omitempty"`  // Untuk detail error (misal validasi)
 }
 
 // ErrorDetail mendefinisikan struktur error per field (misal validasi)
@@ -21,19 +21,29 @@ type ErrorDetail struct {
 
 // JSON membungkus response sukses
 func JSON(w http.ResponseWriter, code int, message string, data any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-
 	status := "success"
 	if code >= 400 {
 		status = "error"
 	}
 
-	json.NewEncoder(w).Encode(BaseResponse{
+	res := BaseResponse{
 		Status:  status,
 		Message: message,
 		Data:    data,
-	})
+	}
+
+	// Marshal first to ensure encoding succeeds before committing status code
+	payload, err := json.Marshal(res)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"status":"error","message":"Internal Server Error: Failed to encode JSON"}`))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	w.Write(payload)
 }
 
 // Error membungkus response error tanpa detail
@@ -43,12 +53,22 @@ func Error(w http.ResponseWriter, code int, message string) {
 
 // ValidationError membungkus response error dengan detail validasi field (Status 422)
 func ValidationError(w http.ResponseWriter, message string, errors []ErrorDetail) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusUnprocessableEntity) // 422
-
-	json.NewEncoder(w).Encode(BaseResponse{
+	res := BaseResponse{
 		Status:  "error",
 		Message: message,
 		Errors:  errors,
-	})
+	}
+
+	// Marshal first for consistency
+	payload, err := json.Marshal(res)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"status":"error","message":"Internal Server Error: Failed to encode JSON"}`))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusUnprocessableEntity)
+	w.Write(payload)
 }
