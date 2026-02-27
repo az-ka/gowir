@@ -37,7 +37,7 @@ func JSON(w http.ResponseWriter, code int, message string, data any) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"status":"error","message":"Internal Server Error: Failed to encode JSON"}`))
+		w.Write([]byte(`{"status":"error","message":"Maaf, terjadi kesalahan internal saat memproses data JSON"}`))
 		return
 	}
 
@@ -64,7 +64,7 @@ func ValidationError(w http.ResponseWriter, message string, errors []ErrorDetail
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"status":"error","message":"Internal Server Error: Failed to encode JSON"}`))
+		w.Write([]byte(`{"status":"error","message":"Maaf, terjadi kesalahan internal saat memproses data JSON"}`))
 		return
 	}
 

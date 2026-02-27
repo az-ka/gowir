@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/charmbracelet/log"
 	"github.com/google/uuid"
 	"github.com/gosimple/slug"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -29,6 +30,13 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Normalisasi: Hapus spasi di awal dan akhir
+	req.Name = strings.TrimSpace(req.Name)
+	if req.Description != nil {
+		trimmedDesc := strings.TrimSpace(*req.Description)
+		req.Description = &trimmedDesc
+	}
+
 	// 2. Validate Fields - 422 Unprocessable Entity
 	if err := h.validator.Struct(req); err != nil {
 		errors := validator.ParseValidationErrors(err)
@@ -39,6 +47,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	// 3. Generate ID - 500 Internal Server Error
 	id, err := uuid.NewV7()
 	if err != nil {
+		log.Error("category creation failed: uuid generation error", "err", err)
 		response.Error(w, 500, "Gagal membuat identitas kategori yang unik. Silakan coba lagi.")
 		return
 	}
@@ -58,13 +67,23 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	// 6. Handle Database Errors
 	if err != nil {
 		var pgErr *pgconn.PgError
-		// 409 Conflict - Duplicate slug (SQLSTATE 23505: unique_violation)
-		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			response.Error(w, 409, "Kategori dengan nama atau slug tersebut sudah ada.")
-			return
+		if errors.As(err, &pgErr) {
+			// 409 Conflict - Duplicate slug (SQLSTATE 23505: unique_violation)
+			if pgErr.Code == "23505" {
+				log.Error("category creation failed: duplicate name", "err", err)
+				response.Error(w, 409, "Nama kategori ini sudah digunakan. Silakan gunakan nama lain.")
+				return
+			}
+			// 422 Unprocessable Entity - Invalid parent_id (SQLSTATE 23503: foreign_key_violation)
+			if pgErr.Code == "23503" {
+				log.Error("category creation failed: invalid parent_id", "parent_id", req.ParentID)
+				response.Error(w, 422, "Kategori induk yang Anda pilih tidak tersedia.")
+				return
+			}
 		}
 		// 500 Internal Server Error
-		response.Error(w, 500, "Terjadi kesalahan saat menyimpan kategori ke database. Silakan coba lagi nanti.")
+		log.Error("category creation failed: database error", "err", err)
+		response.Error(w, 500, "Maaf, saat ini kami sedang mengalami kendala teknis. Silakan coba beberapa saat lagi.")
 		return
 	}
 
