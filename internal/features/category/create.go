@@ -2,6 +2,7 @@ package category
 
 import (
 	"encoding/json"
+	"errors"
 	"gowir/internal/db"
 	"gowir/internal/shared/response"
 	"gowir/internal/shared/validator"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gosimple/slug"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type CreateCategoryReq struct {
@@ -55,8 +57,9 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	// 6. Handle Database Errors
 	if err != nil {
-		// 409 Conflict - Duplicate slug
-		if strings.Contains(err.Error(), "unique constraint") {
+		var pgErr *pgconn.PgError
+		// 409 Conflict - Duplicate slug (SQLSTATE 23505: unique_violation)
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			response.Error(w, 409, "Kategori dengan nama atau slug tersebut sudah ada.")
 			return
 		}
