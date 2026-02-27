@@ -15,7 +15,7 @@ import (
 type CreateCategoryReq struct {
 	ParentID    *uuid.UUID `json:"parent_id"`
 	Name        string     `json:"name" validate:"required,min=3,max=255"`
-	Description string     `json:"description"`
+	Description *string    `json:"description"`
 }
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
@@ -50,7 +50,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		ParentID:    req.ParentID,
 		Name:        req.Name,
 		Slug:        categorySlug,
-		Description: &req.Description,
+		Description: req.Description,
 	})
 
 	// 6. Handle Database Errors
