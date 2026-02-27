@@ -54,4 +54,4 @@ tasks:
   dev:
     desc: "Menjalankan aplikasi Go (Contoh)"
     cmds:
-      - go run main.go
+      - go run .
