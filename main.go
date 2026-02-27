@@ -27,7 +27,8 @@ func main() {
 
 	pool, err := ConnectDB(ctx, dbURL)
 	if err != nil {
-		log.Fatal("failed to connect to database", "error", err)
+		log.Error("failed to connect to database", "error", err)
+		return
 	}
 	defer pool.Close()
 
