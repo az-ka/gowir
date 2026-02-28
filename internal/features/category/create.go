@@ -41,8 +41,13 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 3. Generate ID
-	id := util.MustNewUUID()
+	// 3. Generate ID - 500 Internal Server Error
+	id, err := util.NewUUID()
+	if err != nil {
+		log.Error("category creation failed: uuid generation error", "err", err)
+		response.Error(w, 500, "Terjadi kesalahan internal. Silakan coba beberapa saat lagi.")
+		return
+	}
 
 	// 4. Generate Slug
 	categorySlug := util.GenerateSlug(req.Name)

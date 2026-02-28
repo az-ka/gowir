@@ -23,8 +23,7 @@ func main() {
 
 	pool, err := ConnectDB(ctx, dbURL)
 	if err != nil {
-		log.Error("failed to connect to database", "error", err)
-		return
+		log.Fatal("failed to connect to database", "error", err)
 	}
 	defer pool.Close()
 
@@ -55,7 +54,7 @@ func main() {
 
 	select {
 	case err := <-errChan:
-		log.Error("server encountered a fatal error", "error", err)
+		log.Fatal("server encountered a fatal error", "error", err)
 	case sig := <-quit:
 		log.Info("received termination signal", "signal", sig)
 	}
