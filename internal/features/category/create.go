@@ -5,13 +5,13 @@ import (
 	"errors"
 	"gowir/internal/db"
 	"gowir/internal/shared/response"
+	"gowir/internal/shared/util"
 	"gowir/internal/shared/validator"
 	"net/http"
 	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/google/uuid"
-	"github.com/gosimple/slug"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -44,16 +44,11 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 3. Generate ID - 500 Internal Server Error
-	id, err := uuid.NewV7()
-	if err != nil {
-		log.Error("category creation failed: uuid generation error", "err", err)
-		response.Error(w, 500, "Gagal membuat identitas kategori yang unik. Silakan coba lagi.")
-		return
-	}
+	// 3. Generate ID
+	id := util.MustNewUUID()
 
 	// 4. Generate Slug
-	categorySlug := generateCustomSlug(req.Name)
+	categorySlug := util.GenerateSlug(req.Name)
 
 	// 5. Save to Database
 	category, err := h.queries.CreateCategory(r.Context(), db.CreateCategoryParams{
@@ -89,10 +84,4 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	// 7. Success - 201 Created
 	response.JSON(w, 201, "Kategori baru berhasil ditambahkan.", category)
-}
-
-func generateCustomSlug(name string) string {
-	// Ganti symbol "&" menjadi "dan" agar lebih user-friendly
-	formatted := strings.ReplaceAll(name, "&", "dan")
-	return slug.Make(formatted)
 }
