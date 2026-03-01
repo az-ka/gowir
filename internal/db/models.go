@@ -11,10 +11,10 @@ import (
 
 type Category struct {
 	ID          uuid.UUID          `json:"id"`
-	ParentID    pgtype.UUID        `json:"parent_id"`
+	ParentID    *uuid.UUID         `json:"parent_id"`
 	Name        string             `json:"name"`
 	Slug        string             `json:"slug"`
-	Description pgtype.Text        `json:"description"`
+	Description *string            `json:"description"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 }

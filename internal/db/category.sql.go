@@ -9,7 +9,6 @@ import (
 	"context"
 
 	uuid "github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createCategory = `-- name: CreateCategory :one
@@ -22,11 +21,11 @@ RETURNING id, parent_id, name, slug, description, created_at, updated_at
 `
 
 type CreateCategoryParams struct {
-	ID          uuid.UUID   `json:"id"`
-	ParentID    pgtype.UUID `json:"parent_id"`
-	Name        string      `json:"name"`
-	Slug        string      `json:"slug"`
-	Description pgtype.Text `json:"description"`
+	ID          uuid.UUID  `json:"id"`
+	ParentID    *uuid.UUID `json:"parent_id"`
+	Name        string     `json:"name"`
+	Slug        string     `json:"slug"`
+	Description *string    `json:"description"`
 }
 
 func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error) {
@@ -119,7 +118,7 @@ WHERE parent_id = $1
 ORDER BY name
 `
 
-func (q *Queries) ListSubcategories(ctx context.Context, parentID pgtype.UUID) ([]Category, error) {
+func (q *Queries) ListSubcategories(ctx context.Context, parentID *uuid.UUID) ([]Category, error) {
 	rows, err := q.db.Query(ctx, listSubcategories, parentID)
 	if err != nil {
 		return nil, err
@@ -155,11 +154,11 @@ RETURNING id, parent_id, name, slug, description, created_at, updated_at
 `
 
 type UpdateCategoryParams struct {
-	ParentID    pgtype.UUID `json:"parent_id"`
-	Name        string      `json:"name"`
-	Slug        string      `json:"slug"`
-	Description pgtype.Text `json:"description"`
-	ID          uuid.UUID   `json:"id"`
+	ParentID    *uuid.UUID `json:"parent_id"`
+	Name        string     `json:"name"`
+	Slug        string     `json:"slug"`
+	Description *string    `json:"description"`
+	ID          uuid.UUID  `json:"id"`
 }
 
 func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error) {
