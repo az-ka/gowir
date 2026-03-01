@@ -51,6 +51,11 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	// 4. Generate Slug
 	categorySlug := util.GenerateSlug(req.Name)
+	if categorySlug == "" {
+		log.Error("category creation failed: generated slug is empty", "name", req.Name)
+		response.Error(w, 422, "Format nama kategori tidak valid.")
+		return
+	}
 
 	// 5. Save to Database
 	category, err := h.queries.CreateCategory(r.Context(), db.CreateCategoryParams{
