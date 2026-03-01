@@ -1,11 +1,11 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	"gowir/internal/db"
 	"gowir/internal/features/category"
+	"gowir/internal/shared/response"
 	"gowir/middleware"
 
 	"github.com/go-chi/chi/v5"
@@ -23,7 +23,7 @@ func NewRouter(queries *db.Queries, validate *validator.Validate) *chi.Mux {
 
 	// 2. Health Check (Root)
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "API e-commerce berjalan dengan baik")
+		response.JSON(w, 200, "API e-commerce berjalan dengan baik", nil)
 	})
 
 	// 3. Inisialisasi semua Handler
@@ -33,6 +33,10 @@ func NewRouter(queries *db.Queries, validate *validator.Validate) *chi.Mux {
 	r.Route("/api/v1", func(r chi.Router) {
 		// Group: ADMIN
 		r.Route("/admin", func(r chi.Router) {
+			// Pasang middleware pelindung untuk semua endpoint admin
+			r.Use(middleware.RequireAuth)
+			r.Use(middleware.RequireAdmin)
+
 			categoryHandler.RegisterRoutes(r)
 		})
 	})
